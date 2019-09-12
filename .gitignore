@@ -32,3 +32,6 @@ _build
 **/results/*
 !**/results/.gitkeep
 *.d
+*.key
+*.crt
+*.pem
