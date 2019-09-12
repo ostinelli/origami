@@ -1,0 +1,56 @@
+#!/usr/bin/env escript
+%% -*- erlang -*-
+
+-define(EXCLUDED_DIRECTORIES, [".git", "_build", "results"]).
+-define(EXCLUDED_FILES, ["rebar3", "rebar.lock", "rename_project"]).
+-define(EXCLUDED_EXTENSIONS, [".beam"]).
+
+main([NewProjectName]) ->
+    %% get project name
+    AppSrcPath = lists:nth(1, filelib:wildcard("./src/*.app.src")),
+    OldProjectName = filename:basename(AppSrcPath, ".app.src"),
+    io:format("Renaming project from ~p to ~p.~n", [OldProjectName, NewProjectName]),
+    %% loop
+    filelib:fold_files( ".", ".*", true, fun(FilePath, _Acc) ->
+        Paths = filename:split(FilePath),
+        case
+            has_common_elements(Paths, ?EXCLUDED_DIRECTORIES) orelse
+            lists:member(filename:basename(FilePath), ?EXCLUDED_FILES) orelse
+            lists:member(filename:extension(FilePath), ?EXCLUDED_EXTENSIONS)
+        of
+            false ->
+                io:format("-----> File ~p~n", [FilePath]),
+                rename_contents_in_file(FilePath, OldProjectName, NewProjectName),
+                rename_file(FilePath, OldProjectName, NewProjectName);
+            _ ->
+                ignore
+        end
+    end, []);
+main([]) ->
+    io:format("Usage: ./rename_project [project_name]~n").
+
+rename_contents_in_file(FilePath, OldProjectName, NewProjectName) ->
+    {ok, OriginalContents} = file:read_file(FilePath),
+    NewContents = binary:replace(OriginalContents, list_to_binary(OldProjectName), list_to_binary(NewProjectName), [global]),
+    case OriginalContents of
+        NewContents -> ok;
+        _ ->
+            file:write_file(FilePath, NewContents),
+            io:format("       . contents renamed~n")
+    end.
+
+rename_file(FilePath, OldProjectName, NewProjectName) ->
+    NewFilePath = filename:join([
+        filename:dirname(FilePath),
+        lists:flatten(string:replace(filename:basename(FilePath), OldProjectName, NewProjectName))
+    ]),
+
+    case NewFilePath of
+        FilePath -> ok;
+        _ ->
+            file:rename(FilePath, NewFilePath),
+            io:format("       . file renamed to ~p~n", [NewFilePath])
+    end.
+
+has_common_elements(L1, L2) ->
+    [] /= [X || X <- L1, Y <- L2, X == Y].

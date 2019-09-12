@@ -1,0 +1,17 @@
+## Name of the node
+-name origami@127.0.0.1
+
+## Cookie for distributed erlang
+-setcookie da24d15d654c3ad9564b971f9a4cb727fd3e3f6c8964bb6b86a1d5318c807ce487d16773b081db4b3d1515b1f24a9bac144b3a30bada80131c66405a6113ea98
+
+## Enable kernel poll and a few async threads
++K true
++P 5000000
++Q 1000000
++A 100
+
+## Mnesia RAM only
+-mnesia schema_location ram
+
+## Tweak GC to run more often
+-env ERL_FULLSWEEP_AFTER 10

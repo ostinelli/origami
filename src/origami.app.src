@@ -1,0 +1,29 @@
+{application, origami,
+    [
+        {description, "origami server."},
+        {vsn, "0.1.0"},
+        {registered, [
+        ]},
+        {applications, [
+            kernel,
+            stdlib,
+            sasl,
+            lager,
+            cowbell,
+            syn,
+            os_mon,
+            mnesia,
+            asn1,
+            crypto,
+            public_key,
+            ssl,
+            ranch,
+            cowlib,
+            cowboy,
+            jiffy,
+            recon
+        ]},
+        {mod, {origami_app, []}},
+        {env, []}
+    ]
+}.
